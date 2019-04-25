@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"html/template"
 	"log"
 	"net/http"
@@ -22,7 +23,16 @@ type tmplStruct struct {
 	Path string
 }
 
+var (
+	cert string
+	key string
+)
+
 func main() {
+
+	flag.StringVar(&cert, "cert", "go.badoo.dev.pem", "SSL certificate")
+	flag.StringVar(&key, "key", "go.badoo.dev-key.pem", "SSL key")
+	flag.Parse()
 
 	tmpl, err := template.New("main").Parse(defaultAnswer)
 	if err != nil {
@@ -54,10 +64,7 @@ func main() {
 		}
 	})
 
-	if err := http.ListenAndServeTLS(":443",
-		"go.badoo.dev.pem",
-		"go.badoo.dev-key.pem",
-		nil); err != nil {
+	if err := http.ListenAndServeTLS(":443", cert, key,nil); err != nil {
 		log.Fatal(err)
 	}
 }
